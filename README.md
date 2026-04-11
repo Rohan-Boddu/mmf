@@ -220,8 +220,8 @@ MMF: Backpropagation is an algorithm for computing gradients in neural networks.
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/mmf-ai-platform.git
-cd mmf-ai-platform
+git clone https://github.com/Rohan-Boddu/mmf
+cd mmf
 
 # Install dependencies (no GPU, no CUDA, no downloads > 50MB)
 pip install -r requirements.txt
@@ -237,7 +237,7 @@ Open `frontend/index.html` in your browser. Flask runs on `http://localhost:5000
 ## Project Structure
 
 ```
-mmf-ai-platform/
+mmf/
 │
 ├── backend/
 │   ├── app.py                   # Flask factory — CORS, blueprint registration
@@ -305,7 +305,8 @@ mmf-ai-platform/
 
 ## Roadmap
 
-- [ ] **LLM Generation Layer** — Send retrieved chunks to Ollama / OpenAI / Gemini for fluent, grounded answers
+- [ ] **LLM Generation Layer** — Send retrieved chunks to Ollama / OpenAI / Gemini for fluent, grounded answers(optional)
+- [ ] **Rule-Based Response Synthesizer** — Implement a lightweight generation layer to combine top-k retrieved chunks into coherent, human-readable answers                                                    without relying on LLMs.
 - [ ] **Neural Embeddings** — Replace TF-IDF with `sentence-transformers` for deep semantic similarity
 - [ ] **FAISS Vector Index** — Scale to millions of nodes without memory pressure
 - [ ] **Streaming Responses** — Server-sent events for real-time token output
