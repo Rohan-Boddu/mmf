@@ -1,84 +1,236 @@
-# MMF AI Platform — Semantic RAG Knowledge Engine
+# MMF AI Platform
 
-> A production-ready, locally-executed AI knowledge engine with chunk-based semantic retrieval, document ingestion, and a modern chat UI. No cloud APIs required.
+### Self-learning AI that builds knowledge dynamically — no retraining, no cloud, no API keys.
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
-[![Flask](https://img.shields.io/badge/Flask-REST_API-black)](https://flask.palletsprojects.com)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-TF--IDF-orange)](https://scikit-learn.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+<div align="center">
 
----
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat&logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-REST_API-000000?style=flat&logo=flask)](https://flask.palletsprojects.com)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-TF--IDF-F7931E?style=flat&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat)](LICENSE)
 
-## What Is MMF?
-
-The **Memory Model File (MMF)** platform is a locally-executed, document-aware semantic knowledge engine. It ingests documents, converts them into searchable knowledge nodes using TF-IDF cosine similarity, and answers natural language queries — all without any cloud LLM API.
-
-Think of it as a **private, offline RAG (Retrieval-Augmented Generation) engine** you control completely.
+</div>
 
 ---
 
-## Features
+## Overview
 
-| Feature | Description |
-|---|---|
-| 🧠 **Semantic TF-IDF Search** | Cosine similarity ranking across your entire knowledge base |
-| 📄 **Multi-Format Ingestion** | `.txt`, `.csv`, `.js`, `.sql`, `.pdf` — all natively parsed |
-| 🤗 **HuggingFace Dataset Import** | Pull any public dataset row-by-row via HTTP |
-| 📎 **Chat Context Files** | Attach files to a conversation without permanently storing them |
-| ✂️ **Hybrid Query Generator** | Converts raw chunks into 3–5 searchable query patterns per chunk |
-| 💬 **Modern Chat UI** | Glassmorphism design, typing indicators, dark/light mode |
-| ⚙️ **Knowledge Manager** | Full CRUD, bulk select/delete/export, inline editor |
-| 💾 **Chat Export** | Download chat history as a structured Markdown file |
-| 🔍 **Telemetry Panel** | Per-query cosine similarity, score, and matched query debug view |
-| 🔄 **Hot Reload** | Edit knowledge live — engine reloads without restarting Flask |
-| 📦 **`.mmf` Binary Format** | Atomic ZIP-based knowledge compilation and import/export |
+Most AI systems require pre-trained models, cloud APIs, or expensive inference hardware. **MMF is different.**
+
+MMF (Memory Model File) is a knowledge engine that learns from your documents at runtime — no model weights, no fine-tuning, no cloud dependency. You feed it text, PDFs, datasets, or Q&A pairs. It builds a searchable semantic vector space. You query it in plain English and get ranked, synthesized, explainable answers instantly.
+
+**What problem does it solve?**
+You have raw documents, datasets, and domain knowledge. You want a system that can answer questions about that knowledge — intelligently, privately, and without waiting for model training or paying API costs.
+
+**What makes it different?**
+
+| Approach | Training | Cloud | Explains Itself | Updates Live | Cost |
+|---|---|---|---|---|---|
+| Fine-tuned LLM | ✅ Required | Usually | ❌ No | ❌ No | 💰 High |
+| RAG (LLM-based) | ❌ | ✅ Required | Partial | Partial | 💰 Per call |
+| Vector DB (embeddings) | ❌ | Optional | ❌ No | ✅ | 💰 Embedding API |
+| **MMF** | ❌ Never | ❌ Never | ✅ Always | ✅ Live | 🆓 Free |
+
+---
+
+## How MMF Differs From RAG
+
+Standard RAG systems work like this:
+
+```
+User Query → Embeddings Model → Vector DB → LLM (GPT-4 / Claude) → Response
+```
+
+Every step has a cost: embedding API calls, vector DB hosting, LLM token fees.
+
+**MMF replaces all of that:**
+
+```
+User Query → TF-IDF Vectorizer → MMF Knowledge Index → Synthesizer → Response
+```
+
+| Component | Traditional RAG | MMF |
+|---|---|---|
+| Semantic Search | Neural embeddings (paid API or GPU) | TF-IDF (CPU, free) |
+| Storage | Pinecone / Weaviate / Chroma | Local `mmf_dev/` directory |
+| Generation | LLM (GPT, Claude, Gemini) | Rule-based synthesizer (built-in) |
+| Knowledge Updates | Re-embed and re-index | Live hot-reload, no re-index |
+| Explainability | Black box | Score + matched query + source |
+| Infra | API keys, billing, latency | `pip install -r requirements.txt` |
+
+MMF is not trying to replace GPT. It is a **lightweight, deterministic, self-contained alternative** for structured knowledge retrieval — where correctness, speed, explainability, and data privacy matter more than open-ended generation.
+
+---
+
+## The Generative Layer — Without an LLM
+
+MMF is not just a retriever. It includes a built-in **Rule-Based Response Synthesizer** that makes responses feel coherent and complete, even when the answer spans multiple knowledge chunks.
+
+### How it works
+
+**Step 1 — Retrieve Top-K chunks**
+
+User asks: *"Explain stack operations"*
+
+TF-IDF retrieves:
+```
+Chunk 1: "A stack is a linear data structure that follows LIFO order..."
+Chunk 2: "The push operation inserts an element at the top of the stack..."
+Chunk 3: "The pop operation removes the topmost element from the stack..."
+```
+
+**Step 2 — Synthesize**
+
+The `synthesizer.py` module:
+- Splits each chunk into sentences
+- Removes near-duplicate sentences using Jaccard similarity
+- Connects them with grammatical connectors
+- Returns a single fluent response
+
+**Step 3 — Output**
+
+```
+A stack is a linear data structure that follows LIFO order. Additionally, 
+the push operation inserts an element at the top of the stack. Furthermore, 
+the pop operation removes the topmost element from the stack.
+```
+
+This feels generative because it *is* synthesized — but deterministically, from your actual knowledge, with zero hallucination.
+
+### When to add an LLM (optional)
+
+The synthesizer is designed as a **drop-in replacement point**. When you're ready to add an LLM:
+
+```
+User Query
+    ↓
+MMF retrieves Top-K structured chunks  ← this part stays exactly the same
+    ↓
+Send chunks + query to Ollama / GPT-4  ← swap synthesizer.py for this
+    ↓
+LLM generates fluent answer grounded in your data
+```
+
+MMF's retrieval pipeline becomes the **retriever** in a proper RAG system the moment you wire in a generation model. The architecture is already designed for this.
 
 ---
 
 ## Architecture
 
 ```
-User Input
-    │
-    ▼
-Flask REST API  (/chat, /knowledge/*, /chat/context)
-    │
-    ▼
-MMF Runtime  ──►  TfidfMatcher
-                       │
-           ┌───────────┴────────────┐
-           │                        │
-    Persistent Index         Ad-Hoc Context
-    (assistant.mmf)          (session-only)
-           │                        │
-           └────── Score Blend ─────┘
-                   (55% / 45%)
-                       │
-                       ▼
-              Top-K Ranked Result
+User Input (Chat UI)
+        │
+        ▼
+  Flask REST API
+  /chat · /chat/context · /knowledge/*
+        │
+        ▼
+   MMF Runtime
+   normalize_query()
+        │
+        ▼
+  TfidfMatcher.find_best_match()
+        │
+   ┌────┴─────────────┐
+   │                  │
+Persistent         Ad-Hoc Context
+Knowledge          (session-only, attached files)
+(assistant.mmf)
+weight: 0.55       weight: 0.45
+   │                  │
+   └────── Blend ─────┘
+           Sort ↓
+     Top-K Above Threshold
+           │
+           ▼
+     synthesizer.synthesize()
+     (multi-chunk deduplication + connectors)
+           │
+           ▼
+  { response, source, similarity,
+    final_score, matched_query, chunks_used }
+```
+
+### Scoring formula
+
+```
+final_score = (0.7 × cosine_similarity) + (0.3 × node_confidence)
+```
+
+Context blending weights:
+- Persistent MMF knowledge → `× 0.55`
+- Session-attached files   → `× 0.45`
+
+---
+
+## Features
+
+- **Semantic Search** — TF-IDF cosine similarity with top-K ranking, soft thresholding, and per-response explainability
+- **Response Synthesizer** — Merges multiple retrieved chunks into one coherent answer using deterministic rule-based NLP
+- **Self-Learning** — Add, edit, or remove knowledge live in the UI; changes hot-reload without restarting Flask
+- **Document Ingestion** — Parse `.pdf`, `.csv`, `.txt`, `.js`, `.sql` into structured semantic nodes
+- **Hybrid Query Generator** — Converts raw text chunks into 3–5 retrieval-optimized query variants per node
+- **Context-Aware Chat (RAG-style)** — Attach files temporarily; nodes blend into every query without being saved
+- **HuggingFace Import** — Pull any public dataset via the HuggingFace Datasets API. No API key required
+- **Explainable Outputs** — Every response returns `similarity`, `final_score`, `matched_query`, `source`, `chunks_used`
+- **Modern Chat UI** — ChatGPT-style interface, dark/light mode, typing indicators, toast notifications, progress bars
+- **Chat Export** — Download any conversation as a structured `.md` file
+
+---
+
+## Demo Flow
+
+**1 — Ask something the system doesn't know**
+```
+You: What is gradient descent?
+MMF: No suitable knowledge found.
+```
+
+**2 — Teach it directly in the UI**
+```
+⚙️ Matrix Core → + Inject Node
+Query:    "what is gradient descent"
+Response: "An optimization algorithm that minimizes a loss function by
+           iteratively adjusting parameters in the direction of steepest descent."
+```
+
+**3 — Ask again**
+```
+You: what is gradient descent?
+MMF: An optimization algorithm that minimizes a loss function by iteratively
+     adjusting parameters in the direction of steepest descent.
+     [similarity: 0.94 | score: 0.76 | chunks used: 1]
+```
+
+**4 — Upload a textbook, ask a multi-chunk question**
+```
+[+] Attach: ml_textbook.pdf  →  75 nodes extracted
+
+You: Explain backpropagation and how it uses gradient descent
+MMF: Backpropagation is an algorithm for computing gradients in neural networks.
+     Additionally, it uses the chain rule to propagate error signals backward
+     through each layer. Furthermore, these gradients are then applied by
+     gradient descent to update the network's weights.
+     [📎 From: ml_textbook.pdf | chunks used: 3]
 ```
 
 ---
 
-## Quick Start
-
-### 1. Install Dependencies
+## Installation
 
 ```bash
+# Clone the repo
+git clone https://github.com/yourusername/mmf-ai-platform.git
+cd mmf-ai-platform
+
+# Install dependencies (no GPU, no CUDA, no downloads > 50MB)
 pip install -r requirements.txt
-```
 
-### 2. Run the Backend
-
-```bash
+# Start the engine
 python main.py
 ```
 
-Flask will start on `http://localhost:5000`.
-
-### 3. Open the Frontend
-
-Open `frontend/index.html` in any modern browser (Chrome, Firefox, Edge).
+Open `frontend/index.html` in your browser. Flask runs on `http://localhost:5000`.
 
 ---
 
@@ -86,83 +238,94 @@ Open `frontend/index.html` in any modern browser (Chrome, Firefox, Edge).
 
 ```
 mmf-ai-platform/
+│
 ├── backend/
-│   ├── app.py                  # Flask app factory and route registration
+│   ├── app.py                   # Flask factory — CORS, blueprint registration
 │   ├── mmf/
-│   │   ├── builder.py          # Compiles mmf_dev/ → assistant.mmf ZIP
-│   │   ├── loader.py           # Loads assistant.mmf into memory
-│   │   ├── runtime.py          # Orchestrates query → match → response
-│   │   ├── matcher.py          # TF-IDF cosine similarity + ad-hoc blending
-│   │   ├── learner.py          # Deduplication and knowledge persistence
-│   │   ├── ingestor.py         # Document parsing pipeline
-│   │   ├── query_generator.py  # Hybrid semantic query expansion
-│   │   ├── extractor.py        # Heuristic "X is Y" text extraction
-│   │   └── processor.py        # Text cleaning and normalization
+│   │   ├── runtime.py           # Orchestrates: query → retrieve → synthesize → respond
+│   │   ├── matcher.py           # TF-IDF engine + ephemeral ad-hoc context blending
+│   │   ├── synthesizer.py       # Rule-based response synthesizer (multi-chunk fusion)
+│   │   ├── learner.py           # Deduplication, merging, atomic persistence
+│   │   ├── ingestor.py          # Multi-format document parser
+│   │   ├── query_generator.py   # Zero-dependency semantic query expander
+│   │   ├── builder.py           # Compiles mmf_dev/ → assistant.mmf ZIP binary
+│   │   ├── loader.py            # Loads .mmf binary into memory
+│   │   ├── extractor.py         # Heuristic NLP pattern extraction
+│   │   └── processor.py         # Text normalization utilities
 │   └── routes/
-│       ├── chat.py             # /chat and /chat/context endpoints
-│       └── knowledge.py        # Full CRUD, ingest, export, HuggingFace import
+│       ├── chat.py              # /chat · /chat/context
+│       └── knowledge.py         # CRUD · ingest · export · bulk ops · HuggingFace
+│
 ├── frontend/
-│   ├── index.html              # App shell and modals
-│   ├── style.css               # Full design system (dark/light, glassmorphism)
-│   └── script.js               # All UI logic, context management, chat export
-├── main.py                     # Entry point — initializes runtime and starts Flask
+│   ├── index.html               # UI shell — modals, context strip, panels
+│   ├── style.css                # Design system — glassmorphism, toasts, progress bars
+│   └── script.js                # UI logic — context, chat export, CRUD, bulk ops
+│
+├── main.py                      # Entry point — builds .mmf and starts Flask
 ├── requirements.txt
-├── AGENT_RULES.md              # Development governance rules
-├── CHANGELOG.md                # Version history
-└── query_generator_explained.md
+├── AGENT_RULES.md               # Architecture governance rules
+└── CHANGELOG.md                 # Full version history
 ```
 
 ---
 
-## Document Ingestion
+## API Reference
 
-Go to **⚙️ Matrix Core → Ingest Raw Document** and upload any supported file.
-
-For CSVs a column-mapping dialog will appear automatically. For PDFs, text is split into paragraph-level semantic chunks.
-
-### Supported Formats
-
-| Format | Strategy |
-|---|---|
-| `.txt` | Sentence-level heuristic extraction |
-| `.csv` | Named-column mapping (any header layout) |
-| `.js` | Function block scanning |
-| `.sql` | CREATE TABLE schema extraction |
-| `.pdf` | Paragraph chunk splitting + Hybrid Query Generator |
-
----
-
-## Chat Context Files
-
-Click the **`+`** button in the chat bar to attach any file temporarily.  
-Attached nodes are blended into every query for the session **without permanently modifying your knowledge base**.
-
-When a response is sourced from an attached file, the chat bubble shows:
-> `📎 From: filename.pdf`
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/chat` | Query the engine (supports `ad_hoc_knowledge` array) |
+| `POST` | `/api/chat/context` | Extract nodes from a file for session-wide context |
+| `GET` | `/api/knowledge` | List all knowledge nodes |
+| `POST` | `/api/knowledge` | Add a single node |
+| `PUT` | `/api/knowledge/<id>` | Update a node |
+| `DELETE` | `/api/knowledge/<id>` | Delete a node |
+| `POST` | `/api/knowledge/bulk-delete` | Delete multiple nodes by ID |
+| `POST` | `/api/knowledge/ingest` | Ingest a document file |
+| `POST` | `/api/knowledge/csv-headers` | Peek at CSV column names |
+| `GET` | `/api/knowledge/export` | Download `assistant.mmf` binary |
+| `GET` | `/api/knowledge/export/nodes` | Download all nodes as CSV |
+| `POST` | `/api/knowledge/import` | Upload and replace with a `.mmf` binary |
+| `POST` | `/api/knowledge/import/huggingface` | Import rows from a HuggingFace dataset |
 
 ---
 
-## HuggingFace Dataset Import
+## Why This Project Matters
 
-Go to **⚙️ Matrix Core → 🤗 HuggingFace** and enter:
-- Dataset ID (e.g. `rajpurkar/squad`)
-- Query and Answer column names
-- Row limit (max 500)
+**No retraining.** Add, correct, or remove knowledge instantly through the UI. The engine hot-reloads in milliseconds. This is architecturally impossible with fine-tuned or pre-trained models.
 
-Uses the public HuggingFace Datasets Server API — no API key required for public datasets.
+**Lightweight AI alternative.** Runs on any laptop. No GPU, no 70GB model downloads, no Docker, no cloud account. The `.mmf` binary is a ZIP — portable, versionable, shareable.
+
+**Generative without an LLM.** The rule-based synthesizer fuses multiple retrieved chunks into coherent, connected responses. When you're ready to upgrade to an LLM, you swap one function — the retrieval pipeline stays identical.
+
+**Explainable by default.** Every response tells you which query matched, what the cosine similarity was, what the final score was, and how many chunks were used. There are no black boxes.
+
+**Modular by design.** Every component has strict bounded responsibilities. Swapping TF-IDF for FAISS, adding auth, or wiring in Ollama requires changes to exactly one file each.
 
 ---
 
 ## Roadmap
 
-- [ ] Ollama / OpenAI / Gemini LLM generation layer
-- [ ] FAISS vector database backend
-- [ ] Multi-user session isolation
-- [ ] Streaming chat responses
-- [ ] Scheduled dataset sync
+- [ ] **LLM Generation Layer** — Send retrieved chunks to Ollama / OpenAI / Gemini for fluent, grounded answers
+- [ ] **Neural Embeddings** — Replace TF-IDF with `sentence-transformers` for deep semantic similarity
+- [ ] **FAISS Vector Index** — Scale to millions of nodes without memory pressure
+- [ ] **Streaming Responses** — Server-sent events for real-time token output
+- [ ] **Multi-User Sessions** — Isolated session contexts with lightweight auth
 
 ---
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## Author
+
+**Rohan Boddu**
+Built as an exploration of production-grade AI knowledge systems without model dependencies — proving that intelligent retrieval, dynamic learning, and explainability don't require a pre-trained model.
+
+---
+
+<div align="center">
+<sub>No cloud. No retraining. No black boxes.</sub>
+</div>
