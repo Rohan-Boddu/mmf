@@ -62,7 +62,7 @@ MMF is not trying to replace GPT. It is a **lightweight, deterministic, self-con
 
 ---
 
-## The Generative Layer — Without an LLM
+## The Generative Layer — Without an LLM (In Progress)
 
 MMF is not just a retriever. It includes a built-in **Rule-Based Response Synthesizer** that makes responses feel coherent and complete, even when the answer spans multiple knowledge chunks.
 
