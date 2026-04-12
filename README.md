@@ -26,10 +26,10 @@ You have raw documents, datasets, and domain knowledge. You want a system that c
 
 | Approach | Training | Cloud | Explains Itself | Updates Live | Cost |
 |---|---|---|---|---|---|
-| Fine-tuned LLM | ✅ Required | Usually | ❌ No | ❌ No | 💰 High |
-| RAG (LLM-based) | ❌ | ✅ Required | Partial | Partial | 💰 Per call |
-| Vector DB (embeddings) | ❌ | Optional | ❌ No | ✅ | 💰 Embedding API |
-| **MMF** | ❌ Never | ❌ Never | ✅ Always | ✅ Live | 🆓 Free |
+| Fine-tuned LLM | Never Required | Usually |  No |  No |  High cost |
+| RAG (LLM-based) | Never |  Required | Partial | Partial | cost Per call |
+| Vector DB (embeddings) | Never | Optional |  No | LIVE |  cost for Embedding API |
+| **MMF** |  Never |  Never |  Always |  Live |  Free |
 
 ---
 
