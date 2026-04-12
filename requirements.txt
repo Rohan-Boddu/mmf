@@ -2,3 +2,5 @@ flask
 flask-cors
 scikit-learn
 PyPDF2
+numpy
+gunicorn
