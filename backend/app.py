@@ -11,8 +11,11 @@ from mmf.loader import MMFLoader
 from mmf.matcher import TfidfMatcher
 from mmf.runtime import MMFRuntime
 
-# Configure MMF Architecture Hooks (Mapped uniquely to 'assistant.mmf' ZIP as built production data)
-ZIP_TARGET = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../assistant.mmf'))
+# Configure MMF Architecture Hooks
+# Uses 'assistant.mmf' ZIP in production; falls back to 'mmf_dev' folder for local development
+_mmf_zip = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../assistant.mmf'))
+_mmf_dev = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mmf_dev'))
+ZIP_TARGET = _mmf_zip if os.path.exists(_mmf_zip) else _mmf_dev
 
 # Singletons mapping to structural nodes natively
 loader = MMFLoader(ZIP_TARGET)
