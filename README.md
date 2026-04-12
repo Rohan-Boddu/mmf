@@ -19,6 +19,8 @@
 
 ## Overview
 
+![MMF Chat UI — dark mode with a live conversation](./assets/chat-ui-dark.png)
+
 Most AI systems require pre-trained models, cloud APIs, or expensive inference hardware. **MMF is different.**
 
 MMF (Memory Model File) is a knowledge engine that learns from your documents at runtime — no model weights, no fine-tuning, no cloud dependency. You feed it text, PDFs, datasets, or Q&A pairs. It builds a searchable semantic vector space. You query it in plain English and get ranked, synthesized, explainable answers instantly.
@@ -121,6 +123,8 @@ MMF's retrieval pipeline becomes the **retriever** in a proper RAG system the mo
 
 ## Architecture
 
+![MMF Architecture — full pipeline from user input to synthesized response](./assets/architecture-diagram.png)
+
 ```
 User Input (Chat UI)
         │
@@ -179,6 +183,18 @@ Context blending weights:
 - **Explainable Outputs** — Every response returns `similarity`, `final_score`, `matched_query`, `source`, `chunks_used`
 - **Modern Chat UI** — ChatGPT-style interface, dark/light mode, typing indicators, toast notifications, progress bars
 - **Chat Export** — Download any conversation as a structured `.md` file
+
+---
+
+## Screenshots
+
+<div align="center">
+
+| Knowledge Base Manager | Neural Telemetry Panel |
+|:---:|:---:|
+| ![Knowledge Base Architecture modal — CRUD table for all knowledge nodes](./assets/knowledge-base-modal.png) | ![Neural Telemetry sidebar — cosine similarity, rank hash score, debug console](./assets/telemetry-panel.png) |
+
+</div>
 
 ---
 
