@@ -2,6 +2,10 @@
 
 ### Self-learning AI that builds knowledge dynamically — no retraining, no cloud, no API keys.
 
+##  Contribution Guidelines
+
+![Create Branch](./assets/branch-guideline.png)
+
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat&logo=python&logoColor=white)](https://python.org)
