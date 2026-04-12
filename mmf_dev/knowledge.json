@@ -1,0 +1,116 @@
+[
+  {
+    "id": "c88f1dc6-954f-4d69-b1d6-b0da312ccbcf",
+    "query": "hello",
+    "response": "Hello! How can I assist you today?",
+    "tags": [],
+    "created_at": "2026-04-11T10:00:00Z"
+  },
+  {
+    "id": "e210a4e3-78cf-4a1e-8e47-e1147a46abf1",
+    "response": "MMF stands for Memory Model File. It is a system constraint architecture designed to store and manage memory effectively.",
+    "tags": [
+      "model",
+      "file",
+      "memory",
+      "mmf"
+    ],
+    "created_at": "2026-04-11T10:00:00Z",
+    "queries": [
+      "what is mmf",
+      "tell me about mmf",
+      "define mmf"
+    ],
+    "confidence": 1.0
+  },
+  {
+    "id": "4b971a8a-ec8a-449e-b703-9bb6aabc7778",
+    "query": "how do i use this",
+    "response": "You can use this system by matching your input queries against the knowledge base within the MMF.",
+    "tags": [],
+    "created_at": "2026-04-11T10:00:00Z"
+  },
+  {
+    "id": "9b160cb4-7dae-486b-8640-ed197d989cac",
+    "query": "give me a pancake recipe",
+    "response": "Mix 1 cup flour, 1 egg, and 1 cup milk, then fry on a pan.",
+    "tags": [],
+    "created_at": "2026-04-11T10:50:14.907024+00:00"
+  },
+  {
+    "id": "2e2e7f42-bb39-49d8-8164-5e28ff33c499",
+    "query": "hi",
+    "response": "Hello! How can I assist you today?",
+    "tags": [],
+    "created_at": "2026-04-11T10:52:41.844375+00:00"
+  },
+  {
+    "id": "dd71392e-292e-47fd-8c18-1f8a60407174",
+    "response": "youtube is a video platform created in 2005. This is an expanded response to test the merge logic length comparison.",
+    "tags": [
+      "video",
+      "platform",
+      "created",
+      "youtube"
+    ],
+    "created_at": "2026-04-11T11:33:19.174492+00:00",
+    "queries": [
+      "tell me about youtube",
+      "what is youtube",
+      "define youtube",
+      "what is a video platform"
+    ],
+    "confidence": 1.0
+  },
+  {
+    "id": "22158315-ffba-4934-818d-aa834ffaed3e",
+    "response": "the python operating structure is a highly readable programming language.",
+    "tags": [
+      "structure",
+      "operating",
+      "highly",
+      "python"
+    ],
+    "created_at": "2026-04-11T11:33:19.174509+00:00",
+    "queries": [
+      "what is the python operating structure",
+      "tell me about the python operating structure",
+      "define the python operating structure"
+    ],
+    "confidence": 1.0
+  },
+  {
+    "id": "f6498a51-c8d9-4e05-a96a-01e5cb784bc3",
+    "response": "space is a vacuum extending beyond planets.",
+    "tags": [
+      "space",
+      "beyond",
+      "vacuum",
+      "extending"
+    ],
+    "created_at": "2026-04-11T11:33:19.174514+00:00",
+    "queries": [
+      "tell me about space",
+      "define space",
+      "what is space"
+    ],
+    "confidence": 1.0
+  },
+  {
+    "id": "8da753c4-fe00-4996-99ad-58a47af8fa9e",
+    "response": "a tree is a perennial plant with an elongated stem.",
+    "tags": [
+      "tree",
+      "plant",
+      "elongated",
+      "perennial"
+    ],
+    "created_at": "2026-04-11T11:33:19.174518+00:00",
+    "queries": [
+      "tell me about a tree",
+      "what is a tree",
+      "define a tree"
+    ],
+    "confidence": 1.0
+  }
+]
