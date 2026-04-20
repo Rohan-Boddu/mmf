@@ -56,8 +56,13 @@ def normalize_query(query: str) -> str:
         
     text = query.lower()
     
-    # Strip explicit filler arrays natively
-    filler_phrases = ["can you", "please", "tell me", "explain", "i want to know", "about", "what is"]
+    # Strip explicit filler phrases to isolate semantic entities
+    filler_phrases = [
+        "can you", "please", "tell me", "explain", "i want to know", 
+        "about", "what is", "do you think of", "what do you think of",
+        "do you know", "could you", "would you", "tell me about",
+        "give me", "show me", "i am looking for"
+    ]
     for phrase in filler_phrases:
         # We replace with space to avoid merging words together: "can youexplain"
         text = text.replace(phrase, " ")

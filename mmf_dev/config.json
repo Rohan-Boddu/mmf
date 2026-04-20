@@ -1,6 +1,6 @@
 {
   "runtime": {
-    "match_threshold": 0.5,
+    "match_threshold": 0.6,
     "fallback_message": "I'm not sure about that. Could you provide more context?"
   }
 }

@@ -1,4 +1,13 @@
-const API_BASE = 'http://localhost:5000/api';
+// Environment-aware API base URL detection
+// In production (served by Flask/gunicorn), use the current origin.
+// In development, fall back to localhost:5000.
+const API_BASE = (() => {
+    const loc = window.location;
+    if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+        return `${loc.protocol}//${loc.hostname}:${loc.port || '5000'}/api`;
+    }
+    return `${loc.protocol}//${loc.host}/api`;
+})();
 
 // =========================================================
 // ===  UI SYSTEM: Toast · Progress · Confirm  =============
@@ -96,16 +105,102 @@ const historyDiv = document.getElementById('chat-history');
 
 function scrollChat() {
     setTimeout(() => {
-        historyDiv.parentElement.scrollTo({ top: historyDiv.scrollHeight, behavior: 'smooth' });
+        const viewport = historyDiv.parentElement;
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
     }, 50);
 }
 
-function appendMessage(text, sender) {
+/**
+ * Lightweight Markdown Formatter for v0.6.2
+ * Handles: #### (H4), - (Bullets), and `code`
+ */
+function formatMarkdown(text) {
+    if (!text) return "";
+    let fmt = text;
+
+    // --- HTML Escaping for Code Stability ---
+    // We escape < and > globally, then restore tags we actually want (h4, ul, li)
+    const escapeHTML = (str) => str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // 1. Triple Backtick Code Blocks (Multi-line)
+    fmt = fmt.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre class="code-block h-scroll"><code>${escapeHTML(code.trim())}</code></pre>`;
+    });
+
+    // 2. Inline Code
+    fmt = fmt.replace(/`(.*?)`/g, (match, code) => `<code>${escapeHTML(code)}</code>`);
+
+    // 3. Headers
+    fmt = fmt.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+
+    // 4. Bullets
+    fmt = fmt.replace(/^\- (.*$)/gim, '<li>$1</li>');
+
+    // 5. Wrap lists
+    if (fmt.includes('<li>')) {
+        fmt = fmt.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+    }
+
+    // 6. Newlines to breaks (if not in pre blocks)
+    // We only apply <br> to areas not wrapped in <pre>
+    const chunks = fmt.split(/(<pre[\s\S]*?<\/pre>)/g);
+    fmt = chunks.map(chunk => {
+        if (chunk.startsWith('<pre')) return chunk;
+        return chunk.replace(/\n/g, '<br>');
+    }).join('');
+
+    return fmt;
+}
+
+function appendTelemetryChip(data, container) {
+    if (!data || data.matching_query === 'None') return;
+    
+    const chip = document.createElement('div');
+    chip.className = 'telemetry-chip slide-in';
+    const confColor = data.confidence > 0.8 ? '#22c55e' : (data.confidence > 0.5 ? '#f59e0b' : '#ef4444');
+    
+    chip.innerHTML = `
+        <span class="chip-node">🎯 Node: ${data.matching_query}</span>
+        <span class="chip-divider"></span>
+        <span class="chip-conf" style="color:${confColor}">⚡ Conf: ${(data.confidence * 100).toFixed(0)}%</span>
+    `;
+    container.appendChild(chip);
+}
+
+function addCopyButton(bubble, text) {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = '📄 Copy';
+    btn.onclick = () => {
+        navigator.clipboard.writeText(text);
+        btn.innerHTML = '✅ Copied';
+        setTimeout(() => btn.innerHTML = '📄 Copy', 2000);
+    };
+    bubble.appendChild(btn);
+}
+
+function appendMessage(text, sender, metadata = null) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `chat-bubble-wrapper ${sender}`;
+    
+    if (metadata && sender === 'bot') {
+        appendTelemetryChip(metadata, wrapper);
+    }
+
     const msg = document.createElement('div');
     msg.className = `chat-bubble ${sender} slide-in`;
-    msg.innerHTML = `<div class="bubble-content">${text}</div>`;
-    historyDiv.appendChild(msg);
+    
+    const formatted = sender === 'bot' ? formatMarkdown(text) : text;
+    msg.innerHTML = `<div class="bubble-content">${formatted}</div>`;
+    
+    if (sender === 'bot' && text.length > 10) {
+        addCopyButton(msg, text);
+    }
+    
+    wrapper.appendChild(msg);
+    historyDiv.appendChild(wrapper);
     scrollChat();
+    return msg.querySelector('.bubble-content'); // Return reference for streaming updates
 }
 
 function toggleTypingDots(show) {
@@ -281,36 +376,111 @@ function clearAllContext() {
 // =========================================================
 
 async function sendMessage() {
+    console.log("SM: Initializing Neural Transmission...");
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
     if (!text) return;
+
+    // --- Raindrop Shatter & Progress State ---
+    const btn = document.querySelector('.fluid-send-btn');
+    btn.classList.add('active-send');
+
+    // --- Radial Ripple Effect ---
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+    
     appendMessage(text, 'user');
     input.value = '';
     toggleTypingDots(true);
+
     try {
         const payload = { message: text };
         if (_contextNodes.length > 0) payload.ad_hoc_knowledge = _contextNodes;
 
-        const response = await fetch(`${API_BASE}/chat`, {
+        const response = await fetch(`${API_BASE}/chat/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
+        if (!response.ok) throw new Error('Network reach failure');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let botContentRef = null;
+        let accumulatedText = "";
+        let metaReceived = false;
+
         toggleTypingDots(false);
-        const data = await response.json();
-        if (response.ok && data.response) {
-            const isCtx = data.source && data.source.startsWith('attached:');
-            const srcLabel = isCtx
-                ? `<br><span class="bubble-source">📎 From: ${data.source.replace('attached:', '')}</span>`
-                : '';
-            appendMessage(data.response + srcLabel, 'bot');
-            updateDebug(data);
-        } else {
-            appendMessage(`Error: ${data.error || 'Neural disconnect'}`, 'system');
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const jsonStr = line.replace('data: ', '').trim();
+                try {
+                    const data = JSON.parse(jsonStr);
+
+                    if (data.type === 'metadata' && !metaReceived) {
+                        metaReceived = true;
+                        
+                        // Switch to success checkmark on first metadata/content received
+                        btn.classList.remove('active-send');
+                        btn.classList.add('active-success');
+                        
+                        // Reset button to raindrop after 2 seconds of success
+                        setTimeout(() => {
+                            btn.classList.remove('active-success');
+                        }, 2000);
+                        
+                        botContentRef = appendMessage("", 'bot', data);
+                        // Add context badge if needed
+                        const isCtx = data.source && data.source.startsWith('attached:');
+                        if (isCtx) {
+                            const badge = document.createElement('span');
+                            badge.className = 'bubble-source';
+                            badge.innerHTML = `📎 Using context: ${data.source.replace('attached:', '')}`;
+                            botContentRef.parentElement.appendChild(badge);
+                        }
+                    } else if (data.type === 'content') {
+                        // Also trigger success if we get content before metadata for some reason
+                        if (!metaReceived) {
+                            btn.classList.remove('active-send');
+                            btn.classList.add('active-success');
+                            setTimeout(() => {
+                                btn.classList.remove('active-success');
+                            }, 2000);
+                        }
+                        accumulatedText += data.delta;
+                        if (botContentRef) {
+                            botContentRef.innerHTML = formatMarkdown(accumulatedText);
+                        }
+                    } else if (data.type === 'error') {
+                        appendMessage(`Neural error: ${data.message}`, 'system');
+                    }
+                } catch (e) {
+                    console.error("Chunk parse error:", e);
+                }
+            }
         }
+        
+        // Reset button after slight delay
+        setTimeout(() => {
+            btn.classList.remove('active-success', 'active-processing', 'active-send');
+        }, 1500);
+        
+        scrollChat();
+
     } catch (e) {
         toggleTypingDots(false);
-        appendMessage('Connection refused. Is Flask running on :5000?', 'system');
+        appendMessage(`Connection refused or stream broken: ${e.message}`, 'system');
     }
 }
 

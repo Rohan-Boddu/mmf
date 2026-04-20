@@ -35,7 +35,17 @@ def _atomic_write(filepath, data):
 
 @knowledge_bp.route('/knowledge', methods=['GET'])
 def get_knowledge():
-    """Returns absolute structural state of the knowledge arrays directly."""
+    """
+    Get All Knowledge Nodes
+    ---
+    responses:
+      200:
+        description: List of knowledge nodes
+        schema:
+          type: array
+          items:
+            type: object
+    """
     k_path = os.path.join(DEV_TARGET, 'knowledge.json')
     try:
         with open(k_path, 'r', encoding='utf-8') as f:
@@ -46,7 +56,28 @@ def get_knowledge():
 
 @knowledge_bp.route('/knowledge', methods=['POST'])
 def add_knowledge():
-    """Engineers explicit Learner Injection safely routing mapping rules cleanly."""
+    """
+    Inject New Knowledge Node
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            query:
+              type: string
+            response:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+    responses:
+      201:
+        description: Node created successfully
+    """
     data = request.get_json()
     if not data or not data.get('query') or not data.get('response'):
         return jsonify({"error": "Malformed payload natively. 'query' and 'response' strings explicitly required."}), 400
@@ -127,7 +158,24 @@ def delete_knowledge(entry_id):
 
 @knowledge_bp.route('/knowledge/bulk-delete', methods=['POST'])
 def bulk_delete_knowledge():
-    """Deletes multiple knowledge entries by ID in one atomic transaction."""
+    """
+    Bulk Delete Knowledge Nodes
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: string
+    responses:
+      200:
+        description: Nodes deleted successfully
+    """
     data = request.get_json()
     ids_to_delete = data.get("ids", []) if data else []
     if not ids_to_delete:

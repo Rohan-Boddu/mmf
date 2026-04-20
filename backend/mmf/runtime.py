@@ -3,8 +3,11 @@ Runtime orchestration module for the MMF system.
 Orchestrates: input -> match -> synthesize -> response.
 v0.6.1: Added rule-based Response Synthesizer layer for generative-feeling outputs.
 """
+import logging
 from mmf.loader import MMFLoader
 from mmf.matcher import BaseMatcher
+
+logger = logging.getLogger('mmf.runtime')
 
 class MMFRuntime:
     """Orchestrates the loading, matching, synthesis, and query execution."""
@@ -54,14 +57,15 @@ class MMFRuntime:
             top_matches = match_result["top_matches"]
 
             if debug:
-                print("\n[DEBUG] Top-K Outcomes:")
+                logger.debug("Top-K Outcomes:")
                 for i, m in enumerate(top_matches):
-                    print(f"  {i+1}: Score={m['final_score']:.4f} | Sim={m['similarity']:.4f} | Q='{m['matching_query']}'")
+                    logger.debug(f"  {i+1}: Score={m['final_score']:.4f} | Sim={m['similarity']:.4f} | Q='{m['matching_query']}'")
 
             # 3. Filter — keep only candidates above threshold
             best_match = top_matches[0]
+            fallback = self.config.get('runtime', {}).get('fallback_message', "No suitable knowledge found.")
             if best_match["final_score"] < threshold:
-                return {"type": "no_match", "message": "No suitable knowledge found."}
+                return {"type": "no_match", "message": fallback}
 
             above_threshold = [m for m in top_matches if m["final_score"] >= threshold]
 
@@ -84,8 +88,7 @@ class MMFRuntime:
                 "reason":        explanation,
                 "matching_query": best_match["matching_query"],
                 "similarity":    best_match["similarity"],
-                "confidence":    best_match.get("item", {}).get("confidence", best_match["similarity"])
-                                 if isinstance(best_match.get("item"), dict) else best_match["similarity"],
+                "confidence":    best_match["similarity"],
                 "final_score":   best_match["final_score"],
                 "source":        best_match.get("source", "mmf"),
                 "chunks_used":   len(above_threshold)

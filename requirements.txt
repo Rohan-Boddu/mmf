@@ -4,3 +4,11 @@ scikit-learn
 PyPDF2
 numpy
 gunicorn
+python-dotenv
+flask-limiter
+pytest
+pytest-cov
+click
+requests
+filelock
+flasgger

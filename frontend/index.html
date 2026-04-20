@@ -49,8 +49,29 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
             <input type="text" id="chat-input" placeholder="Query the semantic structure..." onkeypress="handleKeyPress(event)" autocomplete="off">
-            <button class="send-btn" onclick="sendMessage()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+             <button class="fluid-send-btn" id="send-btn" onclick="sendMessage()">
+                <div class="btn-icon-wrapper">
+                    <!-- Paper Plane (Take-off) -->
+                    <svg class="icon-plane" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    <!-- Checkmark (Success) -->
+                    <svg class="icon-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <!-- Progress Spinner (Sending) -->
+                    <svg class="icon-progress" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"></circle>
+                    </svg>
+                </div>
+                <span class="btn-text">Send</span>
+                <div class="droplets-container">
+                    <span class="droplet"></span>
+                    <span class="droplet"></span>
+                    <span class="droplet"></span>
+                    <span class="droplet"></span>
+                </div>
             </button>
         </div>
     </div>

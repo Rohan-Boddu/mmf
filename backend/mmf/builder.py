@@ -1,5 +1,8 @@
 import zipfile
 import os
+import logging
+
+logger = logging.getLogger('mmf.builder')
 
 def build_mmf(source_folder, output_folder, output_name="assistant.mmf"):
     """
@@ -21,7 +24,7 @@ def build_mmf(source_folder, output_folder, output_name="assistant.mmf"):
 
                 zipf.write(full_path, arcname)
 
-    print(f"[MMF BUILDER] Built: {output_path}")
+    logger.info(f"MMF built successfully: {output_path}")
 
 if __name__ == "__main__":
     # Define where the folder is and where the file should go

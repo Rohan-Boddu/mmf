@@ -42,15 +42,36 @@ button { cursor: pointer; border: none; font-weight: 500; font-size: 0.9rem; bor
 .chat-flow { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px; padding: 30px 0; }
 
 /* ---- CHAT BUBBLES ---- */
-.chat-bubble { max-width: 80%; display: flex; flex-direction: column; }
+.chat-bubble-wrapper { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.chat-bubble-wrapper.user { align-items: flex-end; }
+.chat-bubble-wrapper.bot { align-items: flex-start; }
+
+.chat-bubble { max-width: 85%; position: relative; display: flex; flex-direction: column; }
 .chat-bubble.user { align-self: flex-end; }
 .chat-bubble.bot { align-self: flex-start; }
-.chat-bubble.system { align-self: center; margin-top: 10px; opacity: 0.7; }
+.chat-bubble.system { align-self: center; margin-top: 10px; opacity: 0.7; width: 100%; max-width: 100%; }
 
-.bubble-content { padding: 14px 20px; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; letter-spacing: 0.3px; }
-.user .bubble-content { background: var(--bubble-user); color: var(--text-primary); border: 1px solid var(--border); border-bottom-right-radius: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.bot .bubble-content { background: var(--bubble-bot); color: var(--text-primary); border: 1px solid var(--border); border-bottom-left-radius: 0; }
+.bubble-content { padding: 16px 22px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; letter-spacing: 0.2px; }
+.user .bubble-content { background: var(--bubble-user); color: var(--text-primary); border: 1px solid var(--border); border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.bot .bubble-content { background: var(--bubble-bot); color: var(--text-primary); border: 1px solid var(--border); border-bottom-left-radius: 4px; position: relative; }
 .system .bubble-content { background: transparent; font-size: 0.85rem; color: var(--text-muted); font-family: monospace; text-align: center; border: none; }
+
+/* ---- TELEMETRY CHIP ---- */
+.telemetry-chip { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2px; backdrop-filter: blur(4px); }
+.chip-node { font-weight: 600; color: var(--text-primary); }
+.chip-divider { width: 1px; height: 10px; background: var(--border); }
+.chip-conf { font-weight: 700; letter-spacing: 0.5px; }
+
+/* ---- COPY BUTTON ---- */
+.copy-btn { position: absolute; top: -10px; right: -40px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-muted); font-size: 0.65rem; padding: 4px 8px; border-radius: 4px; opacity: 0; transition: opacity 0.2s, color 0.2s; }
+.chat-bubble.bot:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--text-primary); border-color: var(--text-primary); }
+
+/* ---- MARKDOWN STYLING ---- */
+.bubble-content h4 { font-size: 1rem; margin: 12px 0 6px 0; color: var(--text-primary); border-left: 3px solid var(--border); padding-left: 10px; }
+.bubble-content ul { padding-left: 20px; margin: 10px 0; }
+.bubble-content li { margin-bottom: 6px; }
+.bubble-content code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); }
 
 /* ---- ANIMATIONS ---- */
 .slide-in { animation: slideInFade 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
@@ -68,8 +89,181 @@ button { cursor: pointer; border: none; font-weight: 500; font-size: 0.9rem; bor
 .glass-input-box { width: 100%; max-width: 800px; display: flex; gap: 10px; background: var(--bg-panel); padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
 .glass-input-box input { flex: 1; background: transparent; border: none; color: var(--text-primary); padding: 12px 18px; font-size: 1rem; outline: none; transition: none; }
 .glass-input-box input::placeholder { color: var(--text-muted); }
-.send-btn { width: 45px; height: 45px; border-radius: 6px; background: var(--text-primary); color: var(--bg-base); display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
-.send-btn:hover { background: var(--text-muted); color: var(--bg-base); }
+/* ---- FORMAL RAINDROP SEND BUTTON ---- */
+.fluid-send-btn { 
+    position: relative;
+    width: 45px; 
+    height: 45px; 
+    margin-left: 10px;
+    flex-shrink: 0;
+    
+    border-radius: 0 50% 50% 50%; /* Raindrop shape pointing UP */
+    transform: rotate(45deg);
+    
+    background: var(--text-primary); 
+    color: var(--bg-base); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fluid-send-btn .btn-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg); /* Counter-rotate icon to be straight */
+    transition: all 0.3s ease;
+    width: 45px;
+    height: 45px;
+    position: absolute;
+}
+
+.fluid-send-btn .btn-text {
+    position: absolute;
+    transform: rotate(-45deg) scale(0.5); /* Hide initially, counter-rotate */
+    opacity: 0;
+    font-weight: 600;
+    line-height: 1;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--bg-base);
+}
+
+/* Hover State - "Pop" the raindrop into a pill */
+.fluid-send-btn:hover {
+    width: 100px;
+    border-radius: 8px; /* Pill shape */
+    transform: rotate(0deg); /* Straighten out */
+    background: var(--accent-hover);
+}
+
+/* Hide Icon and Show Text on Hover */
+.fluid-send-btn:hover .btn-icon-wrapper {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+}
+
+.fluid-send-btn:hover .btn-text {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+/* Icons within wrapper */
+.fluid-send-btn .icon-plane { display: block; stroke: currentColor; }
+.fluid-send-btn .icon-check { display: none; stroke: currentColor; }
+.fluid-send-btn .icon-progress { display: none; stroke: currentColor; }
+
+/* Take-off -> Shatter/Droplet State (Forced high specificity) */
+.fluid-send-btn.active-send {
+    width: 45px !important;
+    border-radius: 50% !important;
+    transform: rotate(0deg) !important;
+    background: var(--text-primary) !important;
+    animation: melt-squash 0.4s ease-out forwards;
+    overflow: visible !important;
+}
+
+@keyframes melt-squash {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.1, 0.8); }
+    100% { transform: scale(1); }
+}
+
+.fluid-send-btn .btn-text {
+    position: absolute;
+    transform: rotate(-45deg) scale(0.5); /* Hide initially, counter-rotate */
+    opacity: 0;
+    font-weight: 600;
+    line-height: 1;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--bg-base);
+}
+
+.fluid-send-btn.active-send .btn-text { 
+    opacity: 0 !important; 
+    transform: scale(0) !important; 
+    filter: blur(4px); /* Melt blur */
+}
+
+.fluid-send-btn.active-send .icon-plane { display: none; }
+.fluid-send-btn.active-send .icon-progress { 
+    display: block; 
+    animation: spin 1s linear infinite; 
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Droplet Animation */
+.droplets-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible; /* Allow drops to fall out */
+}
+
+.droplet {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    opacity: 0;
+    filter: blur(1px);
+}
+
+.fluid-send-btn.active-send .droplet {
+    animation: drop-fall 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.fluid-send-btn.active-send .droplet:nth-child(1) { left: 20%; animation-delay: 0s; }
+.fluid-send-btn.active-send .droplet:nth-child(2) { left: 40%; animation-delay: 0.05s; }
+.fluid-send-btn.active-send .droplet:nth-child(3) { left: 60%; animation-delay: 0.1s; }
+.fluid-send-btn.active-send .droplet:nth-child(4) { left: 80%; animation-delay: 0.15s; }
+
+@keyframes drop-fall {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    50% { opacity: 1; }
+    100% { transform: translateY(60px) scale(0); opacity: 0; }
+}
+
+/* Success State */
+.fluid-send-btn.active-success { background: #22c55e; width: 45px; border-radius: 50%; transform: rotate(0deg); overflow: hidden; }
+.fluid-send-btn.active-success .icon-plane { display: none; }
+.fluid-send-btn.active-success .icon-progress { display: none; }
+.fluid-send-btn.active-success .icon-check { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.fluid-send-btn.active-success .btn-text { display: none; }
+.fluid-send-btn.active-success .btn-icon-wrapper { opacity: 1; transform: scale(1) rotate(0deg); }
+
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Radial Ripple Injection (used by script) */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: radial-ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes radial-ripple {
+    to { transform: scale(4); opacity: 0; }
+}
 
 /* ---- SLIDE-IN DEBUG PANEL ---- */
 .debug-panel { position: fixed; top: 60px; right: 0; width: 350px; height: calc(100vh - 60px); background: var(--bg-panel); border-left: 1px solid var(--border); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 90; display: flex; flex-direction: column; }

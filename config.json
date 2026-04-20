@@ -1,0 +1,8 @@
+{
+  "match_threshold": 0.5,
+  "fallback_message": "No suitable knowledge found.",
+  "intent_weights": {
+    "keyword_match": 0.4,
+    "semantic_similarity": 0.6
+  }
+}

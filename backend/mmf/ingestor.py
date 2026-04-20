@@ -147,62 +147,82 @@ def _ingest_sql(content: str) -> list:
 def _ingest_pdf(file_bytes: bytes, source_name: str = "pdf_document") -> list:
     """
     Semantic Chunk-Based RAG Ingestion for PDF documents.
-    Splits text into paragraph-level chunks, generates rich multi-query arrays
-    using the HybridQueryGenerator, and stores full chunks as responses.
+    Processes pages sequentially to reduce memory footprint.
     """
     import PyPDF2
     from .query_generator import generate_queries
+    import logging
+
+    logger = logging.getLogger('mmf.ingestor')
 
     try:
         reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
-    except Exception:
+    except Exception as e:
+        logger.error(f"Failed to read PDF {source_name}: {str(e)}")
         return []
-
-    # Step 1: Extract full text corpus page-by-page
-    full_text = ""
-    for page in reader.pages:
-        raw = page.extract_text()
-        if raw:
-            full_text += raw + "\n"
-
-    if not full_text.strip():
-        return []
-
-    # Step 2: Split into paragraph-level chunks (double newline = paragraph boundary)
-    raw_chunks = re.split(r'\n\s*\n', full_text)
 
     entries = []
     count = 0
+    buffer = ""
 
-    for chunk in raw_chunks:
-        if count >= 200:  # Hard ceiling
+    for page in reader.pages:
+        if count >= 200:
             break
+            
+        try:
+            raw = page.extract_text()
+            if not raw:
+                continue
+            
+            # Append to buffer and split into chunks
+            buffer += raw + "\n"
+            
+            # Look for paragraph boundaries in the buffer
+            if "\n\n" in buffer:
+                raw_chunks = re.split(r'\n\s*\n', buffer)
+                # Keep the last potentially incomplete chunk in the buffer
+                buffer = raw_chunks.pop()
+                
+                for chunk in raw_chunks:
+                    chunk = chunk.strip()
+                    if len(chunk) < 100:
+                        continue
 
-        chunk = chunk.strip()
+                    queries = generate_queries(chunk)
+                    if not queries:
+                        continue
 
-        # Step 3: Skip noise chunks (too short to be semantically meaningful)
-        if len(chunk) < 100:
+                    tags_raw = [w.lower() for w in chunk.split() if len(w) > 4]
+                    tags = list(dict.fromkeys(tags_raw))[:5]
+
+                    entries.append({
+                        "queries": queries,
+                        "response": chunk,
+                        "tags": tags,
+                        "source": source_name,
+                        "confidence": 0.6
+                    })
+                    count += 1
+                    if count >= 200:
+                        break
+        except Exception as e:
+            logger.warning(f"Error extracting text from page in {source_name}: {str(e)}")
             continue
 
-        # Step 4: Generate rich semantic query array using HybridQueryGenerator
+    # Process remaining buffer as a final chunk
+    if count < 200 and len(buffer.strip()) >= 100:
+        chunk = buffer.strip()
         queries = generate_queries(chunk)
-        if not queries:
-            continue
-
-        # Step 5: Build structured knowledge entry
-        # The full paragraph chunk becomes the response,
-        # and the generated queries make it retrievable via TF-IDF cosine math.
-        tags_raw = [w.lower() for w in chunk.split() if len(w) > 4]
-        tags = list(dict.fromkeys(tags_raw))[:5]  # deduplicated, stable order
-
-        entries.append({
-            "queries": queries,
-            "response": chunk,
-            "tags": tags,
-            "source": source_name,
-            "confidence": 0.6
-        })
-        count += 1
+        if queries:
+            tags_raw = [w.lower() for w in chunk.split() if len(w) > 4]
+            tags = list(dict.fromkeys(tags_raw))[:5]
+            entries.append({
+                "queries": queries,
+                "response": chunk,
+                "tags": tags,
+                "source": source_name,
+                "confidence": 0.6
+            })
 
     return entries
 

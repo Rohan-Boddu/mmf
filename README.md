@@ -23,101 +23,46 @@
 
 Most AI systems require pre-trained models, cloud APIs, or expensive inference hardware. **MMF is different.**
 
-MMF (Memory Model File) is a knowledge engine that learns from your documents at runtime — no model weights, no fine-tuning, no cloud dependency. You feed it text, PDFs, datasets, or Q&A pairs. It builds a searchable semantic vector space. You query it in plain English and get ranked, synthesized, explainable answers instantly.
+MMF (Memory Model File) is an **Intelligent Semantic Response Engine** (v0.7.1) that learns from your data at runtime. It replaces traditional RAG complexity with a deterministic, lightweight, and intent-aware retrieval pipeline.
 
-**What problem does it solve?**
-You have raw documents, datasets, and domain knowledge. You want a system that can answer questions about that knowledge — intelligently, privately, and without waiting for model training or paying API costs.
-
-**What makes it different?**
-
-| Approach | Training | Cloud | Explains Itself | Updates Live | Cost |
-|---|---|---|---|---|---|
-| Fine-tuned LLM | Never Required | Usually |  No |  No |  High cost |
-| RAG (LLM-based) | Never |  Required | Partial | Partial | cost Per call |
-| Vector DB (embeddings) | Never | Optional |  No | LIVE |  cost for Embedding API |
-| **MMF** |  Never |  Never |  Always |  Live |  Free |
+**MMF v0.7.1 Upgrades:**
+- **Hybrid Intent-Aware Selection**: Prioritizes the correct semantic intent (Implementation, Comparison, Debugging) over raw similarity scores.
+- **Master Synthesizer**: Merges Top-3 knowledge nodes into structured, deduplicated, and professional technical responses.
+- **Background Learning**: Asynchronously persists chat knowledge in real-time without blocking the user interface.
 
 ---
 
 ## How MMF Differs From RAG
 
-Standard RAG systems work like this:
+Standard RAG systems rely on expensive external LLMs for generation. **MMF v0.7.1** implements a **Master Synthesizer** that achieves generative-like results deterministically.
 
-```
-User Query → Embeddings Model → Vector DB → LLM (GPT-4 / Claude) → Response
-```
-
-Every step has a cost: embedding API calls, vector DB hosting, LLM token fees.
-
-**MMF replaces all of that:**
-
-```
-User Query → TF-IDF Vectorizer → MMF Knowledge Index → Synthesizer → Response
-```
-
-| Component | Traditional RAG | MMF |
+| Component | Traditional RAG | MMF v0.7.1 |
 |---|---|---|
-| Semantic Search | Neural embeddings (paid API or GPU) | TF-IDF (CPU, free) |
-| Storage | Pinecone / Weaviate / Chroma | Local `mmf_dev/` directory |
-| Generation | LLM (GPT, Claude, Gemini) | Rule-based synthesizer (built-in) |
-| Knowledge Updates | Re-embed and re-index | Live hot-reload, no re-index |
-| Explainability | Black box | Score + matched query + source |
-| Infra | API keys, billing, latency | `pip install -r requirements.txt` |
-
-MMF is not trying to replace GPT. It is a **lightweight, deterministic, self-contained alternative** for structured knowledge retrieval — where correctness, speed, explainability, and data privacy matter more than open-ended generation.
+| Semantic Search | Neural embeddings (Paid API) | Intent-Aware TF-IDF (CPU, Free) |
+| Selection | Raw Vector Match | Hybrid Intent-Aware Fallback |
+| Generation | LLM (GPT, Claude) | Master Synthesizer (Rule-based) |
+| Update Speed | Continuous Re-indexing | Live Hot-Reload + BG Learning |
+| Privacy | Data sent to Cloud | 100% Local / On-Device |
 
 ---
 
-## The Generative Layer — Without an LLM (In Progress)
+## The Intelligent Response Engine (v0.7.1)
 
-MMF is not just a retriever. It includes a built-in **Rule-Based Response Synthesizer** that makes responses feel coherent and complete, even when the answer spans multiple knowledge chunks.
+MMF is no longer just a retriever. It is a **Controlled Semantic Generator**.
 
 ### How it works
 
-**Step 1 — Retrieve Top-K chunks**
+**Step 1 — Hybrid Intent Selection**
+If you ask for a "stack implementation", MMF recognizes the `implementation` intent and prioritizes code-heavy nodes, even if a "definition" node has a slightly higher raw similarity score.
 
-User asks: *"Explain stack operations"*
+**Step 2 — Strict Metadata Extraction**
+Instead of raw text dumping, MMF parses structured `content_json` to extract:
+- **Insight**: The core conceptual summary.
+- **Key Points**: Deduplicated bullet points spanning multiple knowledge nodes.
+- **Implementation**: Language-aware code blocks (C, Python, C++).
 
-TF-IDF retrieves:
-```
-Chunk 1: "A stack is a linear data structure that follows LIFO order..."
-Chunk 2: "The push operation inserts an element at the top of the stack..."
-Chunk 3: "The pop operation removes the topmost element from the stack..."
-```
-
-**Step 2 — Synthesize**
-
-The `synthesizer.py` module:
-- Splits each chunk into sentences
-- Removes near-duplicate sentences using Jaccard similarity
-- Connects them with grammatical connectors
-- Returns a single fluent response
-
-**Step 3 — Output**
-
-```
-A stack is a linear data structure that follows LIFO order. Additionally, 
-the push operation inserts an element at the top of the stack. Furthermore, 
-the pop operation removes the topmost element from the stack.
-```
-
-This feels generative because it *is* synthesized — but deterministically, from your actual knowledge, with zero hallucination.
-
-### When to add an LLM (optional)
-
-The synthesizer is designed as a **drop-in replacement point**. When you're ready to add an LLM:
-
-```
-User Query
-    ↓
-MMF retrieves Top-K structured chunks  ← this part stays exactly the same
-    ↓
-Send chunks + query to Ollama / GPT-4  ← swap synthesizer.py for this
-    ↓
-LLM generates fluent answer grounded in your data
-```
-
-MMF's retrieval pipeline becomes the **retriever** in a proper RAG system the moment you wire in a generation model. The architecture is already designed for this.
+**Step 3 — Controlled Synthesis**
+The engine merges Top-3 candidates using a **Primary Node Lock**. The primary node defines the answer, while secondary nodes are strictly filtered by intent to enrich the result without concept contamination or duplication.
 
 ---
 
@@ -129,40 +74,26 @@ MMF's retrieval pipeline becomes the **retriever** in a proper RAG system the mo
 User Input (Chat UI)
         │
         ▼
-  Flask REST API
-  /chat · /chat/context · /knowledge/*
+   MMF Runtime ───▶ [BG LEARNER] (Asynchronous Knowledge Expansion)
         │
         ▼
-   MMF Runtime
-   normalize_query()
+  Hybrid Intent Matcher
+  (Detect: Implementation | Comparison | Debug | Definition)
+        │
+  ┌─────┴──────────────┐
+  │ 1.15x Intent Boost │ ◀── Score Calibration: 0.7*Sim + 0.3*Conf
+  └─────┬──────────────┘
+        ▼
+   Master Synthesizer
+   (Primary-Secondary Lock + Structured JSON Extraction)
         │
         ▼
-  TfidfMatcher.find_best_match()
-        │
-   ┌────┴─────────────┐
-   │                  │
-Persistent         Ad-Hoc Context
-Knowledge          (session-only, attached files)
-(assistant.mmf)
-weight: 0.55       weight: 0.45
-   │                  │
-   └────── Blend ─────┘
-           Sort ↓
-     Top-K Above Threshold
-           │
-           ▼
-     synthesizer.synthesize()
-     (multi-chunk deduplication + connectors)
-           │
-           ▼
-  { response, source, similarity,
-    final_score, matched_query, chunks_used }
-```
-
-### Scoring formula
-
-```
-final_score = (0.7 × cosine_similarity) + (0.3 × node_confidence)
+   #### Insight: {Topic}
+   summary...
+   #### Key Points:
+   - point 1 (deduplicated)
+   #### Implementation:
+   ```python ... ```
 ```
 
 Context blending weights:
@@ -247,7 +178,7 @@ cd mmf
 pip install -r requirements.txt
 
 # Start the engine
-python main.py
+python backend/app.py
 ```
 
 Open `frontend/index.html` in your browser. Flask runs on `http://localhost:5000`.
