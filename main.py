@@ -175,13 +175,13 @@ def build():
     """Rebuild the .mmf archive from mmf_dev."""
     from mmf.builder import build_mmf
 
-    click.echo("🔨 Building MMF archive...")
+    click.echo("Building MMF archive...")
     try:
         build_mmf(MMF_DEV, BASE_DIR, "assistant.mmf")
         size = os.path.getsize(MMF_ZIP) / 1024
-        click.secho(f"✅ Built successfully: assistant.mmf ({size:.1f} KB)", fg="green")
+        click.secho(f"Built successfully: assistant.mmf ({size:.1f} KB)", fg="green")
     except Exception as e:
-        click.secho(f"❌ Build failed: {str(e)}", fg="red")
+        click.secho(f"Build failed: {str(e)}", fg="red")
 
 
 @cli.command()

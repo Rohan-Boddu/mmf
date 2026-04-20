@@ -7,8 +7,14 @@ import time
 import uuid
 from flasgger import Swagger
 
-# Ensure backend can import mmf dynamically
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+# Ensure project root and backend directory are in sys.path for robust imports
+current_dir = os.path.abspath(os.path.dirname(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, '..'))
+
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
 from backend.config import Config
 from mmf_logger import setup_logging, get_logger, metrics

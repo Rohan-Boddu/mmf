@@ -10457,7 +10457,7 @@
     "queries": [
       "Hello"
     ],
-    "response": "No suitable knowledge found.",
+    "response": "Hello! I am the MMF AI Platform. How can I help you today?",
     "tags": [
       "chat_learned"
     ],

@@ -133,6 +133,9 @@ function formatMarkdown(text) {
     // 3. Headers
     fmt = fmt.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
 
+    // 3.5. Links [text](url)
+    fmt = fmt.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="chat-link">$1</a>');
+
     // 4. Bullets
     fmt = fmt.replace(/^\- (.*$)/gim, '<li>$1</li>');
 
