@@ -95,6 +95,21 @@ let isLightMode = false;
 function toggleTheme() {
     isLightMode = !isLightMode;
     document.body.classList.toggle('light-theme', isLightMode);
+    
+    // Update mode text and toggle icons
+    const modeText = document.getElementById('mode-text');
+    const moonIcon = document.querySelector('.moon-icon');
+    const sunIcon = document.querySelector('.sun-icon');
+    
+    if (isLightMode) {
+        modeText.textContent = 'Light Mode';
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+    } else {
+        modeText.textContent = 'Dark Mode';
+        moonIcon.classList.remove('hidden');
+        sunIcon.classList.add('hidden');
+    }
 }
 
 // =========================================================

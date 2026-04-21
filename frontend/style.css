@@ -34,8 +34,11 @@ button { cursor: pointer; border: none; font-weight: 500; font-size: 0.9rem; bor
 .glass-nav { position: fixed; top: 0; width: 100%; height: 60px; z-index: 100; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; background: var(--bg-base); }
 .brand-text { font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px; }
 .nav-icons { display: flex; gap: 15px; }
-.icon-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; }
+.icon-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
 .icon-btn:hover { color: var(--text-primary); background: var(--bg-panel); border-color: var(--border); }
+.nav-icon-img { width: 18px; height: 18px; display: block; filter: brightness(0.6); transition: filter 0.2s ease; }
+.mode-icon { width: 18px; height: 18px; display: block; filter: brightness(0.6); transition: filter 0.2s ease; }
+.icon-btn:hover .nav-icon-img, .icon-btn:hover .mode-icon { filter: brightness(1); }
 
 /* ---- CHAT VIEWPORT ---- */
 .chat-viewport { flex: 1; margin-top: 60px; margin-bottom: 90px; overflow-y: auto; scroll-behavior: smooth; display: flex; justify-content: center; padding: 0 20px; }
