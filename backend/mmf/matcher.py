@@ -8,7 +8,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import logging
-from typing import List, Dict, Optional, Any, Tuple
+from typing import List, Dict, Optional, Any, Tuple, Set
 
 def detect_intent(query: str) -> str:
     """Helper to detect query intent based on keyword heuristics."""
