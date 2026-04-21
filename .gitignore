@@ -31,7 +31,7 @@ Thumbs.db
 
 # MMF Runtime Data — do NOT commit live knowledge or compiled binaries
 mmf_dev/
-*.mmf
+
 assistant_export.mmf
 
 # Dataset folders — too large for git

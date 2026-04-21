@@ -10390,79 +10390,67 @@
   {
     "id": "4aa6b5a0-20f1-4c89-a99d-d8a2c879a182",
     "queries": [
-      "hi"
+      "hi",
+      "hello",
+      "hey"
     ],
-    "response": "No suitable knowledge found.",
+    "response": "Hello! I am your MMF assistant. Ask me about concepts, coding help, debugging, or comparisons, and I will try to give a structured answer.",
     "tags": [
-      "chat_learned"
+      "chat_learned",
+      "basic_conversation"
     ],
     "source": "manual",
-    "confidence": 0.9,
+    "confidence": 0.95,
     "created_at": "2026-04-15T13:46:41.980914+00:00"
   },
   {
     "id": "e065d454-7b50-4a65-ba24-1879668eace3",
     "queries": [
-      "ho can i help you"
+      "how can i use you",
+      "how do i use you",
+      "how to use you",
+      "how do i use this assistant",
+      "what can you do",
+      "help me use this assistant"
     ],
-    "response": "I'm not sure about that. Could you provide more context?",
+    "response": "You can use me in 3 simple ways: 1) Ask direct questions (example: 'what is stack in data structure'). 2) Ask for implementation (example: 'stack implementation in c'). 3) Ask for comparison/debug help (example: 'array vs linked list' or 'why is my queue code failing'). I also learn from new knowledge added in the knowledge manager.",
     "tags": [
-      "chat_learned"
+      "chat_learned",
+      "basic_conversation"
     ],
     "source": "manual",
-    "confidence": 0.9,
+    "confidence": 0.95,
     "created_at": "2026-04-18T10:37:57.704113+00:00"
-  },
-  {
-    "id": "763b51cc-5137-49de-9f29-62bac978e689",
-    "queries": [
-      "what!!!"
-    ],
-    "response": "#### Insight: UDP\n\nConnectionless fast protocol. Gaming, streaming. It is a fundamental part of NW.\n\n#### Key Points:\n* Essential for technical interviews.\n* Frequently used in system design.\n* Crucial for performance optimization.\n\n#### Example:\nA real-world implementation of UDP in modern software.",
-    "tags": [
-      "chat_learned"
-    ],
-    "source": "manual",
-    "confidence": 0.9,
-    "created_at": "2026-04-18T10:38:13.098330+00:00"
-  },
-  {
-    "id": "4444351c-f26b-4e46-abc2-169fdf0bbfa4",
-    "queries": [
-      "please"
-    ],
-    "response": "No suitable knowledge found.",
-    "tags": [
-      "chat_learned"
-    ],
-    "source": "manual",
-    "confidence": 0.9,
-    "created_at": "2026-04-18T10:38:28.453183+00:00"
-  },
-  {
-    "id": "265794b1-6acb-446a-816f-00460b954287",
-    "queries": [
-      "Demonstrating the new UI."
-    ],
-    "response": "No suitable knowledge found.",
-    "tags": [
-      "chat_learned"
-    ],
-    "source": "manual",
-    "confidence": 0.9,
-    "created_at": "2026-04-18T11:00:43.352193+00:00"
   },
   {
     "id": "824c2493-606e-481f-bc3b-5ea9d43adadc",
     "queries": [
-      "Hello"
+      "Hello",
+      "good morning",
+      "good evening"
     ],
-    "response": "Hello! I am the MMF AI Platform. How can I help you today?",
+    "response": "Hello! I am the MMF AI Platform. You can ask me definitions, implementations, debugging help, or quick comparisons. Try: 'how to use queue in c' or 'difference between bfs and dfs'.",
     "tags": [
-      "chat_learned"
+      "chat_learned",
+      "basic_conversation"
     ],
     "source": "manual",
-    "confidence": 0.9,
+    "confidence": 0.95,
     "created_at": "2026-04-18T11:20:00.313332+00:00"
+  },
+  {
+    "id": "b0538a17-0fc5-4f95-bbe8-c5f9a90f73fe",
+    "queries": [
+      "how to use",
+      "help",
+      "usage"
+    ],
+    "response": "You can ask direct questions, request code implementations, compare two concepts, or debug an error with me. Start with short queries like 'stack in c', 'dfs vs bfs', or 'why my linked list segfaults'.",
+    "tags": [
+      "basic_conversation"
+    ],
+    "source": "manual",
+    "confidence": 0.95,
+    "created_at": "2026-04-21T00:00:00+00:00"
   }
 ]
