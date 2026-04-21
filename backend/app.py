@@ -128,4 +128,10 @@ def create_app() -> Flask:
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=Config.PORT, debug=Config.DEBUG)
+    port = Config.PORT
+    debug = Config.DEBUG
+    print(f"\n Server running at http://0.0.0.0:{port}")
+    print(f" Access the API at http://localhost:{port}/api")
+    print(f" Health check at http://localhost:{port}/health")
+    print(f" Swagger UI at http://localhost:{port}/apidocs\n")
+    app.run(host='0.0.0.0', port=port, debug=debug)
